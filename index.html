@@ -109,7 +109,8 @@ function drawPostGraphic(canvas, post, orgName, logoImg, styleIndex, darkLogo) {
   }
   // Total reserved from bottom: credit(30) + gap(10) + hash(32) + gap(10) + name(48) + gap(12) + logo + gap(12) + gold line(3) + gap(20)
   var bottomPad = style === "flag" ? 32 : (style === "memorial" ? 50 : 20);
-  brandH = bottomPad + creditH + 10 + hashH + 10 + nameH + 12 + logoDrawH + 12 + 3 + 20;
+  var noLogoExtra = logoImg ? 0 : 40;
+  brandH = bottomPad + creditH + 10 + hashH + 10 + nameH + 12 + logoDrawH + 12 + 3 + 20 + noLogoExtra;
   var bodyStopY = H - brandH - 10; // hard ceiling for body text
 
   // ============================================================
@@ -219,7 +220,7 @@ function drawPostGraphic(canvas, post, orgName, logoImg, styleIndex, darkLogo) {
   }
 
   // Gold separator line above branding
-  var sepY = logoImg ? (orgNameY - (dH || 0) - 68) : (orgNameY - 28);
+  var sepY = logoImg ? (orgNameY - (dH || 0) - 68) : (orgNameY - 50);
   ctx.fillStyle = GOLD; ctx.fillRect(W/2-60, sepY, 120, 3);
 }
 
