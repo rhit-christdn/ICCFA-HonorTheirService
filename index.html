@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honor Their Service — ICCFA Campaign Toolkit</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #060F1B; font-family: Georgia, serif; overflow-x: hidden; }
+  @keyframes twinkle { 0%{opacity:0.1} 100%{opacity:var(--mo,0.5)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  input:focus { outline: none; border-color: #C8A84B !important; }
+  button { font-family: Georgia, serif; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useCallback, useEffect } = React;
+
+const NAVY = "#0B1A2E";
+const NAVY_DEEP = "#060F1B";
+const RED = "#B22234";
+const GOLD = "#C8A84B";
+const GOLD2 = "#E8C96A";
+const CREAM = "#F4EFE4";
+const WHITE = "#FFFFFF";
+
+const POSTS = [
+  { num:1, tag:"AWARENESS", headline:"Still Waiting For\nthe Right Moment?", body:"Many families are caring for a veteran's cremated remains, unsure of what comes next. If your loved one served, they may have earned burial benefits — including a headstone, military honors, and interment at no cost.\n\nYou don't have to figure this out alone." },
+  { num:2, tag:"SPOUSE ELIGIBILITY", headline:"It’s Not Just\nThe Veteran.", body:"Did you know? Eligible surviving spouses may also qualify for burial honors — including interment at a national cemetery at NO cost.\n\nMany families are completely unaware of this benefit. If someone you love served, reach out. We can help you explore every option." },
+  { num:3, tag:"NO JUDGMENT", headline:"There Is No Timeline\nFor Grief.", body:"Whether it’s been weeks, months, or years — there is no wrong time to begin exploring permanent placement for a Veteran’s cremated remains.\n\nWe’re here when you’re ready. No pressure. No judgment. Just guidance." },
+  { num:4, tag:"BENEFITS", headline:"Benefits Most Families\nNever Knew.", body:"Veterans may be eligible for:\n• A government-furnished headstone or marker\n• Military funeral honors\n• Interment in a national or state veterans cemetery\n• All at no cost to the family\n\nThese benefits exist to honor their service. Let us help you access them." },
+  { num:5, tag:"CALL TO ACTION", headline:"A Flag Was Folded\nFor Them.", body:"That flag represented a nation’s gratitude. Permanent placement gives Veterans a place where that gratitude endures — where their service is remembered, honored, and never forgotten.\n\nLet us help you take the next step." },
+  { num:6, tag:"CEMETERY", headline:"A Place Set Apart\nFor Those Who Served.", body:"National and state veterans cemeteries are sacred ground — places of honor, remembrance, and dignity.\n\nIf you’re caring for a Veteran’s cremated remains, these cemeteries may offer a final resting place at no cost to your family." },
+  { num:7, tag:"FAQ", headline:"Questions We\nHear Every Day.", body:"“Is my loved one eligible?”\n“What does it cost?”\n“How long does the process take?”\n“Can my spouse be included?”\n\nWe hear these questions every day — and we’re here to answer every one of them." },
+  { num:8, tag:"REMEMBRANCE", headline:"Their Story\nIsn’t Over.", body:"A Veteran’s legacy doesn’t end — it endures. Permanent placement gives families a place to visit, to remember, and to ensure that a lifetime of service is honored for generations to come." },
+  { num:9, tag:"WE HANDLE IT", headline:"We Handle\nThe Hard Parts.", body:"Paperwork. Eligibility verification. Coordination with the VA or national cemetery. These are things no family should have to navigate alone.\n\nWe guide families through every step — because honoring a Veteran’s service should never feel like a burden." },
+  { num:10, tag:"GENTLE REMINDER", headline:"For Every Family\nStill Waiting.", body:"If you’ve been caring for a Veteran’s cremated remains and haven’t been sure what to do next — this is your reminder that help is available.\n\nNo rush. No judgment. Just a path toward permanent placement when you’re ready." },
+  { num:11, tag:"PRIVATE CEMETERY", headline:"Honor Does Not\nRequire Distance.", body:"Not every Veteran needs to rest at a national cemetery. Many local and private cemeteries have dedicated veteran sections — places of honor right here in your community.\n\nIf distance has been a concern, let us show you what’s available close to home." },
+  { num:12, tag:"PRIVATE CEMETERY", headline:"This Community\nWill Not Forget.", body:"Our dedicated veteran section is a place where service is permanently honored — right here in the community where they lived, worked, and served.\n\nLet us help you give your Veteran a place of lasting remembrance." },
+];
+
+const STYLES = ["flag","stars","memorial","eagle"];
+
+function drawPostGraphic(canvas, post, orgName, logoImg, styleIndex, darkLogo) {
+  const ctx = canvas.getContext("2d");
+  const W = 1080, H = 1080;
+  canvas.width = W;
+  canvas.height = H;
+  const style = STYLES[styleIndex % 4];
+
+  // Background
+  if (style === "flag") {
+    const grd = ctx.createLinearGradient(0, 0, W, H);
+    grd.addColorStop(0, NAVY); grd.addColorStop(0.5, "#132B4A"); grd.addColorStop(1, NAVY_DEEP);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 13; i++) {
+      ctx.fillStyle = i % 2 === 0 ? RED : WHITE;
+      ctx.fillRect(i*(W/13), 0, W/13, 22);
+      ctx.fillRect(i*(W/13), H-22, W/13, 22);
+    }
+  } else if (style === "stars") {
+    const grd = ctx.createLinearGradient(0, 0, W, H);
+    grd.addColorStop(0, "#0B1A2E"); grd.addColorStop(0.5, "#1A3050"); grd.addColorStop(1, "#0B1A2E");
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    ctx.font = "120px serif"; ctx.fillStyle = "rgba(200,168,75,0.08)"; ctx.fillText("★", 30, 130);
+    ctx.font = "80px serif"; ctx.fillText("★", W-110, H-50);
+    ctx.font = "50px serif"; ctx.fillText("★", W-80, H/2);
+  } else if (style === "memorial") {
+    const grd = ctx.createLinearGradient(0, 0, 0, H);
+    grd.addColorStop(0, "#1A0A0E"); grd.addColorStop(1, NAVY_DEEP);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "rgba(200,168,75,0.25)"; ctx.lineWidth = 3;
+    ctx.strokeRect(30, 30, W-60, H-60);
+  } else {
+    const grd = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+    grd.addColorStop(0, "#1C2F48"); grd.addColorStop(1, NAVY_DEEP);
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    ctx.font = "52px serif"; ctx.fillStyle = "rgba(200,168,75,0.4)";
+    ctx.textAlign = "center"; ctx.fillText("★", W/2, 70);
+  }
+
+  // ============================================================
+  // LAYOUT: Calculate bottom branding zone FIRST to prevent overlap
+  // ============================================================
+  var brandH = 0;
+  var creditH = 30;  // ICCFA credit line at very bottom
+  var hashH = 32;    // hashtag line
+  var nameH = 48;    // org name
+  var logoDrawH = 0;
+  if (logoImg) {
+    // Draw logo at natural aspect ratio, max 120px tall
+    var natW = logoImg.naturalWidth || logoImg.width;
+    var natH = logoImg.naturalHeight || logoImg.height;
+    var maxLogoH = 120;
+    var maxLogoW = 360;
+    var scale = Math.min(maxLogoW / natW, maxLogoH / natH, 1);
+    var drawW = natW * scale;
+    var drawH = natH * scale;
+    // If too small, scale up
+    if (drawH < 60) { scale = 60 / natH; drawW = natW * scale; drawH = natH * scale; }
+    if (drawW > maxLogoW) { scale = maxLogoW / natW; drawW = natW * scale; drawH = natH * scale; }
+    logoDrawH = drawH + 50; // logo + big gap below it
+  }
+  // Total reserved from bottom: credit(30) + gap(10) + hash(32) + gap(10) + name(48) + gap(12) + logo + gap(12) + gold line(3) + gap(20)
+  var bottomPad = style === "flag" ? 32 : (style === "memorial" ? 50 : 20);
+  brandH = bottomPad + creditH + 10 + hashH + 10 + nameH + 12 + logoDrawH + 12 + 3 + 20;
+  var bodyStopY = H - brandH - 10; // hard ceiling for body text
+
+  // ============================================================
+  // TOP CONTENT
+  // ============================================================
+
+  // (post number removed)
+
+  // Tag
+  ctx.textAlign = "center";
+  ctx.font = '700 28px sans-serif';
+  ctx.fillStyle = "rgba(200,168,75,0.9)";
+  ctx.fillText(post.tag, W/2, 130);
+
+  // Gold line under tag
+  ctx.fillStyle = GOLD; ctx.fillRect(W/2-50, 148, 100, 4);
+
+  // Headline
+  ctx.font = 'bold 72px Georgia, serif';
+  ctx.fillStyle = WHITE;
+  var headLines = post.headline.split("\n");
+  var headY = 230;
+  headLines.forEach(function(line) { ctx.fillText(line, W/2, headY); headY += 86; });
+
+  // Body text — stops before branding zone
+  ctx.font = '28px Georgia, serif';
+  ctx.fillStyle = "rgba(244,239,228,0.75)";
+  var maxTextW = W - 180;
+  var bodyY = headY + 20;
+  var bodyDone = false;
+  post.body.split("\n").forEach(function(paragraph) {
+    if (bodyDone) return;
+    if (!paragraph.trim()) { bodyY += 16; return; }
+    var words = paragraph.split(" ");
+    var line = "";
+    words.forEach(function(word) {
+      if (bodyDone) return;
+      var test = line + word + " ";
+      if (ctx.measureText(test).width > maxTextW && line) {
+        if (bodyY > bodyStopY) { bodyDone = true; return; }
+        ctx.fillText(line.trim(), W/2, bodyY);
+        line = word + " "; bodyY += 38;
+      } else { line = test; }
+    });
+    if (!bodyDone && line.trim()) {
+      if (bodyY <= bodyStopY) {
+        ctx.fillText(line.trim(), W/2, bodyY);
+        bodyY += 38;
+      }
+    }
+    bodyY += 6;
+  });
+
+  // ============================================================
+  // BOTTOM BRANDING — drawn from bottom up, guaranteed no overlap
+  // ============================================================
+  ctx.textAlign = "center";
+
+  // Credit line (very bottom)
+  var creditY = H - bottomPad - 6;
+  ctx.font = '18px sans-serif'; ctx.fillStyle = "rgba(244,239,228,0.3)";
+  ctx.fillText("Honor Their Service — Compliments of the ICCFA Veterans Committee", W/2, creditY);
+
+  // Hashtags
+  var hashY = creditY - 36;
+  ctx.font = '20px sans-serif'; ctx.fillStyle = "rgba(200,168,75,0.5)";
+  ctx.fillText("#HonorTheirService  #VeteransBenefits  #ICCFA", W/2, hashY);
+
+  // Org name
+  var orgNameY = hashY - 38;
+  ctx.font = 'bold 36px Georgia, serif';
+  ctx.fillStyle = CREAM;
+  ctx.fillText(orgName || "[YOUR ORGANIZATION]", W/2, orgNameY);
+
+  // Logo (no circle clip — natural shape)
+  if (logoImg) {
+    var natW2 = logoImg.naturalWidth || logoImg.width;
+    var natH2 = logoImg.naturalHeight || logoImg.height;
+    var maxLH = 120, maxLW = 360;
+    var sc = Math.min(maxLW / natW2, maxLH / natH2, 1);
+    var dW = natW2 * sc;
+    var dH = natH2 * sc;
+    if (dH < 60) { sc = 60 / natH2; dW = natW2 * sc; dH = natH2 * sc; }
+    if (dW > maxLW) { sc = maxLW / natW2; dW = natW2 * sc; dH = natH2 * sc; }
+    var logoX = W/2 - dW/2;
+    var logoY = orgNameY - dH - 44;
+    if (darkLogo) {
+      // Light rounded rectangle behind the logo so dark logos are visible
+      var pad = 14;
+      var rx = 10;
+      var bx = logoX - pad, by = logoY - pad, bw = dW + pad*2, bh = dH + pad*2;
+      ctx.fillStyle = "rgba(244,239,228,0.92)";
+      ctx.beginPath();
+      ctx.moveTo(bx + rx, by);
+      ctx.lineTo(bx + bw - rx, by);
+      ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + rx);
+      ctx.lineTo(bx + bw, by + bh - rx);
+      ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - rx, by + bh);
+      ctx.lineTo(bx + rx, by + bh);
+      ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - rx);
+      ctx.lineTo(bx, by + rx);
+      ctx.quadraticCurveTo(bx, by, bx + rx, by);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.drawImage(logoImg, logoX, logoY, dW, dH);
+  }
+
+  // Gold separator line above branding
+  var sepY = logoImg ? (orgNameY - (dH || 0) - 68) : (orgNameY - 28);
+  ctx.fillStyle = GOLD; ctx.fillRect(W/2-60, sepY, 120, 3);
+}
+
+
+function PostCard({ post, orgName, logoImg, styleIndex, darkLogo }) {
+  const canvasRef = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
+
+  useEffect(function() {
+    if (canvasRef.current) {
+      drawPostGraphic(canvasRef.current, post, orgName, logoImg, styleIndex, darkLogo);
+    }
+  }, [post, orgName, logoImg, styleIndex, darkLogo]);
+
+  const handleDownload = function() {
+    if (!canvasRef.current) return;
+    try {
+      const link = document.createElement("a");
+      link.download = "honor-their-service-post-" + post.num + ".png";
+      link.href = canvasRef.current.toDataURL("image/png");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setDownloaded(true);
+      setTimeout(function() { setDownloaded(false); }, 2000);
+    } catch(e) {
+      alert("Download blocked by this environment. Open this file directly in Chrome or Edge to enable downloads.");
+    }
+  };
+
+  const handleCopy = function() {
+    const caption = post.headline.replace(/\n/g, " ") + "\n\n" + post.body + "\n\n" + (orgName || "[YOUR ORGANIZATION]") + "\n\n#HonorTheirService #VeteransBenefits #ICCFA";
+    navigator.clipboard.writeText(caption).then(function() {
+      setCopied(true);
+      setTimeout(function() { setCopied(false); }, 2000);
+    }).catch(function() {
+      // Fallback
+      const ta = document.createElement("textarea");
+      ta.value = caption;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(function() { setCopied(false); }, 2000);
+    });
+  };
+
+  return (
+    <div
+      style={{ position:"relative", borderRadius:8, overflow:"hidden", aspectRatio:"1/1", cursor:"pointer", transition:"transform 0.3s, box-shadow 0.3s", transform: hovered ? "translateY(-4px)" : "none", boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.5)" : "0 4px 12px rgba(0,0,0,0.2)" }}
+      onMouseEnter={function() { setHovered(true); }}
+      onMouseLeave={function() { setHovered(false); }}
+    >
+      <canvas ref={canvasRef} style={{ width:"100%", height:"100%", display:"block" }} />
+      {hovered && (
+        <div style={{ position:"absolute", inset:0, background:"rgba(11,26,46,0.90)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:14, animation:"fadeIn 0.2s ease" }}>
+          <div style={{ fontFamily:"Georgia, serif", fontSize:18, color:WHITE, marginBottom:4, textAlign:"center", padding:"0 24px", lineHeight:1.4 }}>{post.headline.replace(/\n/g, " ")}</div>
+          <div style={{ fontSize:12, color:"rgba(244,239,228,0.45)", marginBottom:8, fontFamily:"sans-serif" }}>Post {post.num} • {post.tag}</div>
+          <button onClick={handleDownload} style={{ padding:"14px 36px", borderRadius:4, background: downloaded ? "#4CAF50" : "linear-gradient(135deg, "+GOLD+", "+GOLD2+")", color: downloaded ? WHITE : NAVY, fontWeight:700, fontSize:14, letterSpacing:1, border:"none", cursor:"pointer", textTransform:"uppercase", fontFamily:"sans-serif", transition:"all 0.3s" }}>
+            {downloaded ? "✓ Downloaded!" : "↓ Download Graphic"}
+          </button>
+          <button onClick={handleCopy} style={{ padding:"11px 30px", borderRadius:4, background:"transparent", color: copied ? GOLD : CREAM, border: copied ? "1px solid "+GOLD : "1px solid rgba(244,239,228,0.3)", fontWeight:600, fontSize:13, cursor:"pointer", letterSpacing:1, textTransform:"uppercase", fontFamily:"sans-serif", transition:"all 0.3s" }}>
+            {copied ? "✓ Caption Copied!" : "Copy Caption"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+function StarField() {
+  const stars = [];
+  for (let i = 0; i < 80; i++) {
+    stars.push({ id:i, size:Math.random()*2.5+0.5, top:Math.random()*100, left:Math.random()*100, dur:Math.random()*3+2, maxO:Math.random()*0.5+0.2, delay:Math.random()*4 });
+  }
+  return (
+    <div style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0 }}>
+      {stars.map(function(s) {
+        return <div key={s.id} style={{ position:"absolute", width:s.size, height:s.size, borderRadius:"50%", background:"#fff", top:s.top+"%", left:s.left+"%", "--mo":s.maxO, animation:"twinkle "+s.dur+"s ease-in-out infinite alternate", animationDelay:s.delay+"s" }} />;
+      })}
+    </div>
+  );
+}
+
+function FlagStripes() {
+  const stripes = [];
+  for (let i = 0; i < 13; i++) { stripes.push(i); }
+  return (
+    <div style={{ display:"flex", height:8, position:"relative", zIndex:1 }}>
+      {stripes.map(function(i) {
+        return <div key={i} style={{ flex:1, background: i%2===0 ? RED : WHITE }} />;
+      })}
+    </div>
+  );
+}
+
+
+function App() {
+  const [orgName, setOrgName] = useState("");
+  const [logoImg, setLogoImg] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [isSetup, setIsSetup] = useState(true);
+  const [darkLogo, setDarkLogo] = useState(false);
+  const fileRef = useRef(null);
+
+  const handleLogo = function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      setLogoPreview(ev.target.result);
+      const img = new Image();
+      img.onload = function() { setLogoImg(img); };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const ready = orgName.trim().length > 0;
+
+  // ===== SETUP SCREEN =====
+  if (isSetup) {
+    return (
+      <div style={{ minHeight:"100vh", background:NAVY_DEEP, display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
+        <StarField />
+        <div style={{ position:"relative", zIndex:1, maxWidth:520, width:"100%", padding:"0 24px" }}>
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <div style={{ width:90, height:90, borderRadius:"50%", border:"3px solid "+GOLD, margin:"0 auto 28px", display:"flex", alignItems:"center", justifyContent:"center", color:GOLD, fontSize:16, fontWeight:700, letterSpacing:3, fontFamily:"Georgia, serif", boxShadow:"0 0 30px rgba(200,168,75,0.15)" }}>ICCFA</div>
+            <h1 style={{ fontSize:32, color:WHITE, letterSpacing:3, marginBottom:8, textTransform:"uppercase", fontFamily:"Georgia, serif" }}>Honor <span style={{ color:GOLD }}>Their Service</span></h1>
+            <p style={{ color:GOLD2, fontStyle:"italic", fontSize:15, opacity:0.85 }}>Campaign Toolkit — Personalize Your Posts</p>
+          </div>
+
+          <div style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(200,168,75,0.15)", borderRadius:12, padding:"36px 32px" }}>
+            <label style={{ display:"block", fontSize:11, color:GOLD, letterSpacing:3, textTransform:"uppercase", marginBottom:10, fontFamily:"sans-serif", fontWeight:600 }}>Your Organization Name</label>
+            <input
+              type="text"
+              value={orgName}
+              onChange={function(e) { setOrgName(e.target.value); }}
+              placeholder="e.g. Riverside Memorial Funeral Home"
+              style={{ width:"100%", padding:"14px 16px", borderRadius:6, border:"1px solid rgba(200,168,75,0.25)", background:"rgba(0,0,0,0.3)", color:CREAM, fontSize:16, fontFamily:"Georgia, serif", marginBottom:28 }}
+            />
+
+            <label style={{ display:"block", fontSize:11, color:GOLD, letterSpacing:3, textTransform:"uppercase", marginBottom:10, fontFamily:"sans-serif", fontWeight:600 }}>Your Logo <span style={{ color:"rgba(244,239,228,0.35)", fontWeight:400, letterSpacing:0, textTransform:"none" }}>(optional)</span></label>
+            <div
+              onClick={function() { fileRef.current && fileRef.current.click(); }}
+              style={{ width:"100%", padding: logoPreview ? "12px" : "32px 16px", borderRadius:6, border:"1px dashed rgba(200,168,75,0.3)", background:"rgba(0,0,0,0.2)", cursor:"pointer", textAlign:"center", display:"flex", alignItems:"center", justifyContent:"center", gap:16 }}
+            >
+              {logoPreview ? (
+                <React.Fragment>
+                  <img src={logoPreview} alt="Logo" style={{ height:56, maxWidth:160, objectFit:"contain" }} />
+                  <span style={{ color:CREAM, fontSize:14, opacity:0.7 }}>Logo uploaded — click to change</span>
+                </React.Fragment>
+              ) : (
+                <span style={{ color:"rgba(244,239,228,0.4)", fontSize:14 }}>Click to upload your logo (PNG, JPG)</span>
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" onChange={handleLogo} style={{ display:"none" }} />
+
+            {logoPreview && (
+              <div
+                onClick={function() { setDarkLogo(!darkLogo); }}
+                style={{ display:"flex", alignItems:"center", gap:12, marginTop:20, cursor:"pointer", padding:"12px 16px", borderRadius:6, background: darkLogo ? "rgba(244,239,228,0.08)" : "transparent", border:"1px solid rgba(200,168,75,0.15)", transition:"all 0.2s" }}
+              >
+                <div style={{ width:40, height:22, borderRadius:11, background: darkLogo ? GOLD : "rgba(255,255,255,0.15)", position:"relative", transition:"background 0.2s", flexShrink:0 }}>
+                  <div style={{ width:18, height:18, borderRadius:9, background: WHITE, position:"absolute", top:2, left: darkLogo ? 20 : 2, transition:"left 0.2s", boxShadow:"0 1px 3px rgba(0,0,0,0.3)" }} />
+                </div>
+                <div>
+                  <div style={{ fontSize:13, color:CREAM, fontFamily:"sans-serif", fontWeight:600 }}>My logo is dark</div>
+                  <div style={{ fontSize:11, color:"rgba(244,239,228,0.4)", fontFamily:"sans-serif" }}>Adds a light background behind your logo on each post</div>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={function() { if (ready) setIsSetup(false); }}
+              disabled={!ready}
+              style={{ width:"100%", marginTop:32, padding:"16px", borderRadius:6, border:"none", background: ready ? "linear-gradient(135deg, "+GOLD+", "+GOLD2+")" : "rgba(200,168,75,0.2)", color: ready ? NAVY : "rgba(244,239,228,0.3)", fontSize:16, fontWeight:700, letterSpacing:2, textTransform:"uppercase", cursor: ready ? "pointer" : "default", fontFamily:"Georgia, serif", transition:"all 0.3s" }}
+            >
+              Generate My Campaign →
+            </button>
+          </div>
+
+          <p style={{ textAlign:"center", marginTop:20, fontSize:12, color:"rgba(244,239,228,0.25)", fontFamily:"sans-serif" }}>Compliments of the ICCFA and the ICCFA Veterans Committee</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== MAIN CAMPAIGN VIEW =====
+  return (
+    <div style={{ minHeight:"100vh", background:NAVY_DEEP, fontFamily:"Georgia, serif", position:"relative" }}>
+      <StarField />
+      <FlagStripes />
+
+      {/* Header */}
+      <div style={{ position:"relative", zIndex:1, textAlign:"center", padding:"44px 20px 40px", animation:"fadeUp 0.7s ease forwards" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20, marginBottom:16, flexWrap:"wrap" }}>
+          {logoPreview ? (
+            <img src={logoPreview} alt="Logo" style={{ height:64, maxWidth:200, objectFit:"contain" }} />
+          ) : (
+            <div style={{ width:64, height:64, borderRadius:"50%", border:"3px solid "+GOLD, display:"flex", alignItems:"center", justifyContent:"center", color:GOLD, fontSize:12, letterSpacing:2, fontWeight:700, boxShadow:"0 0 20px rgba(200,168,75,0.2)" }}>ICCFA</div>
+          )}
+          <div style={{ textAlign:"left" }}>
+            <h1 style={{ fontSize:28, color:WHITE, letterSpacing:2, lineHeight:1.2 }}>Honor <span style={{ color:GOLD }}>Their Service</span></h1>
+            <p style={{ color:GOLD2, fontSize:13, fontStyle:"italic", opacity:0.8, marginTop:2 }}>Personalized for {orgName}</p>
+          </div>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, flexWrap:"wrap" }}>
+          <button onClick={function() { setIsSetup(true); }} style={{ background:"transparent", border:"1px solid rgba(200,168,75,0.25)", color:GOLD, padding:"8px 20px", borderRadius:4, cursor:"pointer", fontSize:12, letterSpacing:1, fontFamily:"sans-serif" }}>← Change Info</button>
+          {logoPreview && (
+            <button onClick={function() { setDarkLogo(!darkLogo); }} style={{ background: darkLogo ? "rgba(200,168,75,0.15)" : "transparent", border:"1px solid rgba(200,168,75,0.25)", color: darkLogo ? GOLD : CREAM, padding:"8px 20px", borderRadius:4, cursor:"pointer", fontSize:12, letterSpacing:1, fontFamily:"sans-serif", transition:"all 0.2s" }}>
+              {darkLogo ? "☀ Light logo mode" : "☾ Dark logo mode"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div style={{ position:"relative", zIndex:1, background:"rgba(255,255,255,0.02)", borderTop:"1px solid rgba(200,168,75,0.12)", borderBottom:"1px solid rgba(200,168,75,0.12)", padding:"32px 20px", textAlign:"center", animation:"fadeUp 0.7s 0.1s ease both" }}>
+        <div style={{ display:"flex", justifyContent:"center", gap:48, flexWrap:"wrap", maxWidth:800, margin:"0 auto" }}>
+          {[
+            { n:"1", t:"Hover a Post", d:"Browse your 12 branded posts below" },
+            { n:"2", t:"Download", d:"Save the graphic as a ready-to-post PNG" },
+            { n:"3", t:"Share", d:"Post to Facebook, Instagram, or LinkedIn" },
+          ].map(function(s) {
+            return (
+              <div key={s.n} style={{ flex:"1 1 180px", maxWidth:220 }}>
+                <div style={{ width:38, height:38, borderRadius:"50%", border:"2px solid "+GOLD, color:GOLD, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px", fontSize:16, fontWeight:700, fontFamily:"Georgia, serif" }}>{s.n}</div>
+                <div style={{ color:WHITE, fontSize:14, fontWeight:700, marginBottom:4, fontFamily:"sans-serif" }}>{s.t}</div>
+                <div style={{ color:"rgba(244,239,228,0.4)", fontSize:12, fontFamily:"sans-serif" }}>{s.d}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div style={{ position:"relative", zIndex:1, padding:"40px 20px 50px", maxWidth:1200, margin:"0 auto", animation:"fadeUp 0.7s 0.2s ease both" }}>
+        <h2 style={{ textAlign:"center", color:GOLD, fontSize:18, letterSpacing:4, textTransform:"uppercase", marginBottom:36, fontFamily:"sans-serif", fontWeight:600 }}>Your 12 Campaign Posts</h2>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))", gap:20 }}>
+          {POSTS.map(function(post, i) {
+            return <PostCard key={post.num} post={post} orgName={orgName} logoImg={logoImg} styleIndex={i} darkLogo={darkLogo} />;
+          })}
+        </div>
+      </div>
+
+      {/* Download All */}
+      <div style={{ position:"relative", zIndex:1, textAlign:"center", padding:"0 20px 40px" }}>
+        <p style={{ color:"rgba(244,239,228,0.4)", fontSize:13, fontFamily:"sans-serif", marginBottom:8 }}>Hover each post and click "Download Graphic" to save individual images, or "Copy Caption" to grab the text.</p>
+      </div>
+
+      <FlagStripes />
+
+      <div style={{ position:"relative", zIndex:1, textAlign:"center", padding:"24px 20px", borderTop:"1px solid rgba(200,168,75,0.1)" }}>
+        <p style={{ fontSize:12, color:"rgba(244,239,228,0.25)", fontFamily:"sans-serif", letterSpacing:1 }}>Compliments of the ICCFA and the ICCFA Veterans Committee • iccfa.com</p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
