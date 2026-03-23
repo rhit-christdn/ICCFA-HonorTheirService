@@ -119,20 +119,12 @@ function drawPostGraphic(canvas, post, orgName, logoImg, styleIndex, darkLogo) {
 
   // (post number removed)
 
-  // Tag
-  ctx.textAlign = "center";
-  ctx.font = '700 28px sans-serif';
-  ctx.fillStyle = "rgba(200,168,75,0.9)";
-  ctx.fillText(post.tag, W/2, 130);
-
-  // Gold line under tag
-  ctx.fillStyle = GOLD; ctx.fillRect(W/2-50, 148, 100, 4);
-
   // Headline
+  ctx.textAlign = "center";
   ctx.font = 'bold 72px Georgia, serif';
   ctx.fillStyle = WHITE;
   var headLines = post.headline.split("\n");
-  var headY = 230;
+  var headY = 160;
   headLines.forEach(function(line) { ctx.fillText(line, W/2, headY); headY += 86; });
 
   // Body text — stops before branding zone
